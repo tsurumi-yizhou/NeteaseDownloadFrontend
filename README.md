@@ -5,7 +5,14 @@
 
 会调用wget进行下载，请事先安装并确保可用。
 
-准备完成后，只需编译运行此文件。(clang++ main.cpp -std=c++2a) 共有三个参数。第一个参数为网易云音乐uid，第二个参数为运行地址（默认为localhost：3000），第三个地址为希望写入的文件名称。无法下载的歌曲id将写入log。
+准备完成后，只需编译运行此文件。
+```shell
+clang++ main.cpp -o front -std=c++2a
+```
+共有三个参数。第一个参数为网易云音乐uid，第二个参数为运行地址（默认为localhost：3000），第三个地址为希望写入的文件名称。无法下载的歌曲id将写入log。
+```shell
+./front 123456 localhost:3000 playlist.json
+```
 
 ##  依赖
 + [sion http客户端](https://github.com/zanllp/sion)
