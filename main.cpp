@@ -16,12 +16,12 @@ auto write(string url, string name) {
 
 auto record(string data, string name, string filename) {
     auto fd = fopen(filename.c_str(), "a+");
-    if (fputs(("\nconst " + name + "=" + data + "\n").c_str(), fd))    return;
+    if (fputs(data.c_str(), fd))    return;
     throw data;
 }
 
-auto download(unsigned id, string pic) {
-    auto resp = nlohmann::json::parse(sion::Fetch("http://localhost:3000/song/url/v1?id=" + to_string(id) + "&level=hires").StrBody());
+auto download(unsigned id, string pic, string domain) {
+    auto resp = nlohmann::json::parse(sion::Fetch("http://" + domain + "/song/url/v1?id=" + to_string(id) + "&level=hires").StrBody());
     auto url = resp["data"][0]["url"].get<string>();
     write(url, to_string(id) + ".mp3");
     write(pic, to_string(id) + ".jpg");
@@ -36,8 +36,8 @@ auto info(string title, string artist, unsigned id) {
     return info;
 }
 
-auto dump(unsigned long playlist) {
-    auto data = sion::Fetch("http://localhost:3000/playlist/detail?id=" + to_string(playlist)).StrBody();
+auto dump(unsigned long playlist, string domain) {
+    auto data = sion::Fetch("http://" + domain + "playlist/detail?id=" + to_string(playlist)).StrBody();
     auto resp = nlohmann::json::parse(data);
     //std::cout << data << std::endl;
     nlohmann::json list;
@@ -49,7 +49,7 @@ auto dump(unsigned long playlist) {
             pic = music["al"]["picUrl"].get<string>();
             title = music["name"].get<string>();
             author = music["ar"][0]["name"].get<string>();
-            download(id, pic);
+            download(id, pic, domain);
             list += info(title, author, id);
         } catch (...) {
             string cmd = "echo \"" + to_string(id) + "\" >> log";
@@ -66,6 +66,6 @@ int main(int argc, char* argv[]) {
     for (auto i = 0; i < 8; i ++) {
         auto id = list[i]["id"].get<unsigned long>();
         std::cout << "Downloading " << id << std::endl;
-        record(dump(id).dump(4), list[i]["name"].get<string>(), string(argv[3]));
+        record(dump(id, string(argv[2])).dump(4), list[i]["name"].get<string>(), string(argv[3]));
     }
 }
